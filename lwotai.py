@@ -2648,8 +2648,8 @@ class Labyrinth(cmd.Cmd):
             
     @staticmethod
     def debugPrint(str):
-        return
-        # print str
+        #return
+        print str
         
     def outputToHistory(self, output, lineFeed = True):
         print output
@@ -3927,8 +3927,8 @@ class Labyrinth(cmd.Cmd):
             self.prestige = 1
 
     def recruitChoice(self, ops, isMadrassas=False):
-        self.debugPrint("DEBUG: recruit with remaining %d ops" % ops)
-        self.debugPrint("DEBUG: recruit with remaining %d ops" % (2*ops))
+        #self.debugPrint("DEBUG: recruit with remaining %d ops" % ops)
+        #self.debugPrint("DEBUG: recruit with remaining %d ops" % (2*ops))
         countryScores = {}
         for country_name in self.map:
             country = self.map[country_name]
@@ -3937,7 +3937,7 @@ class Labyrinth(cmd.Cmd):
                 if not country_recruit_score is None:
                     countryScores[country_name] = country_recruit_score
         for country in countryScores:
-            self.debugPrint("c")
+            #self.debugPrint("c")
             if self.map[country].besieged > 0:
                 countryScores[country] += 100000
             countryScores[country] += (1000 * (self.map[country].troops() + self.map[country].totalCells(True)))
@@ -3945,16 +3945,16 @@ class Labyrinth(cmd.Cmd):
             countryScores[country] += random.randint(1, 99)
         countryOrder = []
         for country in countryScores:
-            self.debugPrint("here: %d " % countryScores[country])
+            #self.debugPrint("here: %d " % countryScores[country])
             if countryScores[country] > 0:
                 countryOrder.append((countryScores[country], (self.map[country].totalCells(True)), country))
         countryOrder.sort()
         countryOrder.reverse()
         if countryOrder == []:
-            self.debugPrint("d")
+            #self.debugPrint("d")
             return False
         else:
-            self.debugPrint("e")
+            #self.debugPrint("e")
             return countryOrder[0][2]
     
     def executeRecruit(self, country, ops, rolls, recruitOverride=None, isJihadistVideos=False, isMadrassas=False):
@@ -6578,20 +6578,15 @@ def getUserYesNoResponse(prompt):
 def Save(game, save_file_name):
     save_file = open(save_file_name, 'wb')
 
-    # newgame = copy.copy(game)
-    # newgame.randomizer = []
-    # newgame.stdin = []
-    # newgame.stdout = []
-    # pickle.dump(newgame, save_file, 2)
-
     stdin_temp = game.stdin
     stdout_temp = game.stdout
-
     game.stdin = []
     game.stdout = []
+
     pickle.dump(game, save_file, 2)
+
     game.stdin = stdin_temp
-    game.stdin = stdout_temp
+    game.stdout = stdout_temp
 
     save_file.close()
         
