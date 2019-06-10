@@ -128,10 +128,9 @@ class Alignments:
     def __init__(self):
         pass
 
-    global ADVERSARY, ALLY, NEUTRAL
-    ADVERSARY = Alignment("Adversary")
-    ALLY = Alignment("Ally")
-    NEUTRAL = Alignment("Neutral")
+ADVERSARY = Alignment("Adversary")
+ALLY = Alignment("Ally")
+NEUTRAL = Alignment("Neutral")
 
 
 class Randomizer:
@@ -153,7 +152,7 @@ class Randomizer:
     def roll_d6(self, times):
         """Returns the result of rolling a six-sided die the given number of
         times (returns a list of that size containing numbers from 1 to 6)"""
-        return [self.pick_one(range(1, 7)) for index in range(times)]
+        return [self.pick_one(range(1, 7)) for _ in range(times)]
 
 
 class Governance:
@@ -210,20 +209,19 @@ class Governance:
         return self.__max_success_roll
 
 
+GOOD = Governance("Good", 1, 2)
+FAIR = Governance("Fair", 2, 1)
+POOR = Governance("Poor", 3, 0)
+ISLAMIST_RULE = Governance("Islamist Rule", 4, -1)
+# The relative values of governances
+GOOD.set_next_better_and_worse(None, FAIR)
+FAIR.set_next_better_and_worse(GOOD, POOR)
+POOR.set_next_better_and_worse(FAIR, None)  # Islamist Rule requires revolution      
+
 # The possible Governances (or None)
 class Governances:
     def __init__(self):
         pass
-
-    global GOOD, FAIR, POOR, ISLAMIST_RULE
-    GOOD = Governance("Good", 1, 2)
-    FAIR = Governance("Fair", 2, 1)
-    POOR = Governance("Poor", 3, 0)
-    ISLAMIST_RULE = Governance("Islamist Rule", 4, -1)
-    # The relative values of governances
-    GOOD.set_next_better_and_worse(None, FAIR)
-    FAIR.set_next_better_and_worse(GOOD, POOR)
-    POOR.set_next_better_and_worse(FAIR, None)  # Islamist Rule requires revolution
 
     __values = {
         0: None,
@@ -238,8 +236,8 @@ class Governances:
         try:
             return cls.__values[index]
         except KeyError:
-            raise ValueError("Invalid governance value - {}".format(index))
-
+            raise ValueError("Invalid governance value - {}".format(index))   
+   
 
 class Country:
     __alignment = None
@@ -3320,7 +3318,7 @@ class Labyrinth(cmd.Cmd):
                 if 1 <= input <= 6:
                     return input
                 else:
-                    raise
+                    raise Exception("getRollFromUser")
             except:
                 print "Entry error"
                 print ""
@@ -3777,7 +3775,7 @@ class Labyrinth(cmd.Cmd):
                 self.outputToHistory("Alignment %s" % target_country.alignment(), False)
         else:  # a cell is active for each roll
             self.outputToHistory("* Minor Jihad attempt in %s" % country, False) 
-            for i in range(len(rollList) - target_country.numActiveCells()):
+            for _ in range(len(rollList) - target_country.numActiveCells()):
                 self.outputToHistory("Cell goes Active", False)
                 target_country.sleeperCells -= 1
                 target_country.activeCells += 1
@@ -3803,7 +3801,7 @@ class Labyrinth(cmd.Cmd):
                 self.prestige = 1
                 self.outputToHistory("Troops present so US Prestige now 1", False) 
         if self.ideology <= 5:
-            for i in range(failures):
+            for _ in range(failures):
                 if target_country.numActiveCells() > 0:
                     target_country.removeActiveCell()
                 else:
@@ -3817,7 +3815,7 @@ class Labyrinth(cmd.Cmd):
         """Returns number of unused Ops"""
         cells = self.map[country].totalCells(True)
         rollList = []
-        for i in range(min(cells, ops)):
+        for _ in range(min(cells, ops)):
             rollList.append(random.randint(1, 6))
         self.executeJihad(country, rollList)
         return ops - len(rollList)
@@ -4038,7 +4036,7 @@ class Labyrinth(cmd.Cmd):
                 return ops
             else:
                 rolls = []
-                for i in range(ops):
+                for _ in range(ops):
                     rolls.append(random.randint(1, 6))
                 return self.executeRecruit(country, ops, rolls, None, False, isMadrassas)
                 
@@ -4068,7 +4066,7 @@ class Labyrinth(cmd.Cmd):
     
     @staticmethod
     def inLists(country, lists):
-        for list in lists:
+        for _ in lists:
             if country in lists:    
                 return True
         return False
@@ -4221,7 +4219,6 @@ class Labyrinth(cmd.Cmd):
         else:
             subPossibles = []
             for country in countryList:
-                notAnotherDest = True
                 for j in range(len(destinations)):
                     if (i != j) and (country == destinations[j]):
                         subPossibles.append(country)
@@ -4621,7 +4618,7 @@ class Labyrinth(cmd.Cmd):
         
     def handlePlot(self, ops, isOps):
         plotRolls = []
-        for i in range(ops):
+        for _ in range(ops):
             plotRolls.append(random.randint(1, 6))
         return self.executePlot(ops, isOps, plotRolls)
 
@@ -6000,7 +5997,7 @@ class Labyrinth(cmd.Cmd):
                     print "You cannot move that many troops from a Regime Change country."
                     print ""
                     return
-            self.map[moveFrom].changeTroops(-howMany)
+            self.map[moveFrom].changeTroops(-int(howMany))
             troopsLeft = self.map[moveFrom].troops()
         if moveTo == "track":
             self.troops += howMany
@@ -6022,8 +6019,8 @@ class Labyrinth(cmd.Cmd):
         
     def do_disrupt(self, rest):
         where = None
-        sleepers = 0
-        actives = 0
+        #sleepers = 0
+        #actives = 0
         while not where:
             input = self.getCountryFromUser("Disrupt what country?  (? for list): ",  "XXX", self.listDisruptableCountries)    
             if input == "":
@@ -6039,8 +6036,8 @@ class Labyrinth(cmd.Cmd):
                 elif self.map[input].troops() > 0 or self.map[input].type == "Non-Muslim" or self.map[input].is_ally():
                     print ""
                     where = input
-                    sleepers = self.map[input].sleeperCells
-                    actives = self.map[input].activeCells
+                    #sleepers = self.map[input].sleeperCells
+                    #actives = self.map[input].activeCells
                 else:
                     print "You can't disrupt there."
                     print ""
@@ -6398,7 +6395,7 @@ class Labyrinth(cmd.Cmd):
                             numRolls = 3
                         else:
                             numRolls = plotType
-                        for i in range(numRolls):
+                        for _ in range(numRolls):
                             govRolls.append(random.randint(1, 6))
                 elif self.map[country].type == "Non-Muslim":
                     postureRoll = random.randint(1, 6)
@@ -6411,7 +6408,7 @@ class Labyrinth(cmd.Cmd):
                         schCountries.append(schCountries[0])
                         while schCountries[0] == schCountries[1]:
                             schCountries[1] = random.choice(schChoices)
-                        for i in range(2):
+                        for _ in range(2):
                             schPostureRolls.append(random.randint(1, 6))
                 self.resolvePlot(country, plotType, postureRoll, usPrestigeRolls, schCountries, schPostureRolls, govRolls, isBacklash)
         if not foundPlot:        
@@ -6541,7 +6538,7 @@ class Labyrinth(cmd.Cmd):
         while needTurn:
             try:
                 lastturn = self.turn - 1
-                input = self.raw_input("Rollback to which turn valid turns are 0 through " + str(lastturn) + "? Q to cancel rollback: " )
+                input = raw_input("Rollback to which turn valid turns are 0 through " + str(lastturn) + "? Q to cancel rollback: " )
                 
                 if input == "Q":
                     print "Cancel Rollback"
@@ -6552,7 +6549,7 @@ class Labyrinth(cmd.Cmd):
                         self.rollturn = input
                         needTurn = False
                     else:
-                        raise
+                        raise Exception("do_rollback")
             except:
                 print "Entry error"
                 print ""
@@ -6639,7 +6636,7 @@ def main():
                     scenario = input_int
                     print ""
                 else:
-                    raise
+                    raise Exception("Choose scenario")
             except:
                 print "Entry error"
                 print ""
@@ -6659,7 +6656,7 @@ def main():
                     ideology = input_int
                     print ""
                 else:
-                    raise
+                    raise Exception("Choose ideology")
             except ValueError:
                 print "Entry error"
                 print ""
