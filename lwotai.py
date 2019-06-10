@@ -49,6 +49,7 @@ import cmd
 import os.path
 import random
 import sys
+import copy
 
 try:
     import cPickle as pickle
@@ -2597,7 +2598,8 @@ class Labyrinth(cmd.Cmd):
         self.validMarkersSetup() # 20150131PS - added
         
     def postcmd(self, stop, line):
-        
+        line = line.replace("\r", "")
+
         Save(self, SUSPEND_FILE)
 
         if line == "quit":
@@ -3226,7 +3228,7 @@ class Labyrinth(cmd.Cmd):
             print "TEST: Prompt: %s VAL: %s" % (prompt, retVal)
             return retVal
         else:
-            return raw_input(prompt)
+            return raw_input(prompt).replace("\r", "")
 
     def getCountryFromUser(self, prompt, special, helpFunction, helpParameter = None):
         goodCountry = None
@@ -6539,7 +6541,7 @@ class Labyrinth(cmd.Cmd):
         while needTurn:
             try:
                 lastturn = self.turn - 1
-                input = raw_input("Rollback to which turn valid turns are 0 through " + str(lastturn) + "? Q to cancel rollback: " )
+                input = self.raw_input("Rollback to which turn valid turns are 0 through " + str(lastturn) + "? Q to cancel rollback: " )
                 
                 if input == "Q":
                     print "Cancel Rollback"
@@ -6560,7 +6562,8 @@ def getUserYesNoResponse(prompt):
     good = None
     while not good:
         try:
-            input = raw_input(prompt)
+            input = raw_input(prompt).replace("\r", "")
+                
             if input.lower() == "y" or input.lower() == "yes":
                 return True
             elif input.lower() == "n" or input.lower() == "no":
@@ -6575,11 +6578,20 @@ def getUserYesNoResponse(prompt):
 def Save(game, save_file_name):
     save_file = open(save_file_name, 'wb')
 
+    # newgame = copy.copy(game)
+    # newgame.randomizer = []
+    # newgame.stdin = []
+    # newgame.stdout = []
+    # pickle.dump(newgame, save_file, 2)
+
+    stdin_temp = game.stdin
+    stdout_temp = game.stdout
+
     game.stdin = []
     game.stdout = []
     pickle.dump(game, save_file, 2)
-    game.stdin = sys.stdin
-    game.stdout = sys.stdout
+    game.stdin = stdin_temp
+    game.stdin = stdout_temp
 
     save_file.close()
         
