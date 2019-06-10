@@ -6599,6 +6599,8 @@ def SaveTurn(game):
 
 
 def main():
+
+    
     print ""
     print "Labyrinth: The War on Terror AI Player"
     print ""
